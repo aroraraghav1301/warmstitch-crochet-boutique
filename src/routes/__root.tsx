@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
+  useRouterState,
   createRootRouteWithContext,
   useRouter,
   HeadContent,
@@ -11,6 +12,11 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import { Toaster } from "@/components/ui/sonner";
+import { CartProvider } from "@/lib/cart";
+import { SiteHeader } from "@/components/store/SiteHeader";
+import { SiteFooter } from "@/components/store/SiteFooter";
+import { CartDrawer } from "@/components/store/CartDrawer";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
@@ -75,22 +81,25 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
-    // Replace these placeholders with the app's name and description when first building the app.
-    // Each content route, / included, must still set its own head(). Never add og:image or
-    // twitter:image here: every page without its own would inherit the root's preview image.
+    // Each content route, / included, sets its own head(). Never add og:image here.
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "WarmStitch — Handmade Crochet Goods" },
+      { name: "description", content: "Cozy handmade crochet blankets, amigurumi, totes and wearables from the WarmStitch studio." },
+      { name: "author", content: "WarmStitch" },
+      { property: "og:title", content: "WarmStitch — Handmade Crochet Goods" },
+      { property: "og:description", content: "Cozy handmade crochet blankets, amigurumi, totes and wearables." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Figtree:wght@400;500;600;700&display=swap",
+      },
       {
         rel: "stylesheet",
         href: appCss,
@@ -123,8 +132,27 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <CartProvider>
+        <AppFrame />
+        <Toaster position="bottom-center" />
+      </CartProvider>
     </QueryClientProvider>
+  );
+}
+
+function AppFrame() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  // The private console has its own chrome — no storefront header, footer or cart.
+  if (pathname.startsWith("/console")) return <Outlet />;
+  return (
+    <div className="flex min-h-screen flex-col">
+      <SiteHeader />
+      <main className="flex-1">
+        {/* Required: nested routes render here. */}
+        <Outlet />
+      </main>
+      <SiteFooter />
+      <CartDrawer />
+    </div>
   );
 }

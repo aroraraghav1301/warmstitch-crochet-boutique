@@ -1,0 +1,125 @@
+import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { KeyRound, Loader2, LogOut, Package, ReceiptText, TicketPercent } from "lucide-react";
+import { useState, type FormEvent } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ProductsTab } from "@/components/console/ProductsTab";
+import { CouponsTab } from "@/components/console/CouponsTab";
+import { OrdersTab } from "@/components/console/OrdersTab";
+import { getConsoleStatus, lockConsole, unlockConsole } from "@/lib/admin.functions";
+
+export const Route = createFileRoute("/console")({
+  loader: () => getConsoleStatus(),
+  head: () => ({
+    meta: [
+      { title: "Studio console — WarmStitch" },
+      { name: "description", content: "Private store management." },
+      { property: "og:title", content: "Studio console — WarmStitch" },
+      { property: "og:description", content: "Private store management." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
+  component: ConsolePage,
+});
+
+function ConsolePage() {
+  const { unlocked } = Route.useLoaderData();
+  return unlocked ? <Dashboard /> : <PasscodeGate />;
+}
+
+function PasscodeGate() {
+  const router = useRouter();
+  const unlock = useServerFn(unlockConsole);
+  const [passcode, setPasscode] = useState("");
+  const [error, setError] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError(false);
+    try {
+      const res = await unlock({ data: { passcode } });
+      if (res.ok) await router.invalidate();
+      else setError(true);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-weave px-4">
+      <form onSubmit={onSubmit} className="w-full max-w-sm space-y-5 rounded-3xl border border-border bg-card p-8 shadow-lift">
+        <div className="flex size-12 items-center justify-center rounded-full bg-terracotta-soft text-primary">
+          <KeyRound className="size-5" />
+        </div>
+        <div>
+          <h1 className="font-serif text-3xl">Studio console</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Enter the passcode to continue.</p>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="passcode">Passcode</Label>
+          <Input
+            id="passcode"
+            type="password"
+            autoComplete="current-password"
+            value={passcode}
+            onChange={(e) => setPasscode(e.target.value)}
+            className="h-11"
+            autoFocus
+          />
+          {error && <p className="text-sm text-destructive">That passcode isn't right.</p>}
+        </div>
+        <Button type="submit" className="w-full rounded-full" size="lg" disabled={busy || !passcode}>
+          {busy && <Loader2 className="size-4 animate-spin" />} Unlock
+        </Button>
+      </form>
+    </div>
+  );
+}
+
+function Dashboard() {
+  const router = useRouter();
+  const lock = useServerFn(lockConsole);
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="border-b border-border bg-card">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+          <div>
+            <p className="font-serif text-2xl">
+              Warm<span className="italic text-primary">Stitch</span> <span className="text-muted-foreground">studio</span>
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-full"
+            onClick={async () => {
+              await lock();
+              await router.invalidate();
+            }}
+          >
+            <LogOut className="size-4" /> Lock
+          </Button>
+        </div>
+      </header>
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <Tabs defaultValue="orders">
+          <TabsList className="h-auto rounded-full bg-muted p-1">
+            <TabsTrigger value="orders" className="rounded-full px-4 py-2"><ReceiptText className="size-4" /> Orders</TabsTrigger>
+            <TabsTrigger value="products" className="rounded-full px-4 py-2"><Package className="size-4" /> Products</TabsTrigger>
+            <TabsTrigger value="coupons" className="rounded-full px-4 py-2"><TicketPercent className="size-4" /> Discounts & Coupons</TabsTrigger>
+          </TabsList>
+          <TabsContent value="orders" className="mt-6"><OrdersTab /></TabsContent>
+          <TabsContent value="products" className="mt-6"><ProductsTab /></TabsContent>
+          <TabsContent value="coupons" className="mt-6"><CouponsTab /></TabsContent>
+        </Tabs>
+      </main>
+    </div>
+  );
+}
