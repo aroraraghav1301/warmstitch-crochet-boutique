@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, Loader2, Lock } from "lucide-react";
+import { Banknote, CheckCircle2, Copy, IndianRupee, Loader2, Lock, QrCode } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { useState, type FormEvent } from "react";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +14,7 @@ import { useCart } from "@/lib/cart";
 import { imageUrl } from "@/lib/catalog";
 import { formatMoney } from "@/lib/pricing";
 import { placeOrder, type PlacedOrder } from "@/lib/store.functions";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -40,7 +43,39 @@ const formSchema = z.object({
 });
 type FormValues = z.infer<typeof formSchema>;
 
-const EMPTY: FormValues = { name: "", email: "", line1: "", line2: "", city: "", state: "", postalCode: "", country: "United States" };
+const EMPTY: FormValues = { name: "", email: "", line1: "", line2: "", city: "", state: "", postalCode: "", country: "India" };
+
+type PaymentMethod = "cod" | "upi";
+
+function upiUri(upiId: string, amount: number, orderNumber: string) {
+  const params = new URLSearchParams({
+    pa: upiId,
+    pn: "WarmStitch",
+    am: amount.toFixed(2),
+    cu: "INR",
+    tn: `Order ${orderNumber}`,
+  });
+  return `upi://pay?${params.toString()}`;
+}
+
+async function openUpiApp(uri: string) {
+  try {
+    const { Capacitor } = await import("@capacitor/core");
+    if (Capacitor.isNativePlatform()) {
+      const { AppLauncher } = await import("@capacitor/app-launcher");
+      const { value } = await AppLauncher.canOpenUrl({ url: uri });
+      if (!value) {
+        toast.error("No UPI app found on this device");
+        return;
+      }
+      await AppLauncher.openUrl({ url: uri });
+      return;
+    }
+  } catch {
+    // fall through to the browser deep link
+  }
+  window.location.href = uri;
+}
 
 function CheckoutPage() {
   const cart = useCart();
@@ -50,6 +85,7 @@ function CheckoutPage() {
   const [serverError, setServerError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [placed, setPlaced] = useState<PlacedOrder | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
 
   if (placed) return <Confirmation order={placed} />;
 
@@ -93,6 +129,7 @@ function CheckoutPage() {
           couponCode: cart.coupon?.code ?? null,
           customer: { ...parsed.data, line2: parsed.data.line2 || null },
           note: cart.note.trim() || null,
+          paymentMethod,
         },
       });
       if (res.ok) {
@@ -151,6 +188,50 @@ function CheckoutPage() {
               className="bg-background"
             />
           </section>
+          <section className="space-y-3 rounded-2xl border border-border bg-card p-6 shadow-soft">
+            <h2 className="font-serif text-2xl">Payment</h2>
+            <fieldset className="grid gap-3 sm:grid-cols-2">
+              <legend className="sr-only">Choose a payment method</legend>
+              <label
+                className={cn(
+                  "flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors",
+                  paymentMethod === "cod" ? "border-primary bg-terracotta-soft/40" : "border-border bg-background hover:bg-muted/50",
+                )}
+              >
+                <input
+                  type="radio"
+                  name="payment-method"
+                  value="cod"
+                  checked={paymentMethod === "cod"}
+                  onChange={() => setPaymentMethod("cod")}
+                  className="mt-1 size-4 accent-[#C86D51]"
+                />
+                <span>
+                  <span className="flex items-center gap-1.5 font-medium"><Banknote className="size-4 text-primary" /> Cash on delivery</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">Pay in cash when your parcel arrives.</span>
+                </span>
+              </label>
+              <label
+                className={cn(
+                  "flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors",
+                  paymentMethod === "upi" ? "border-primary bg-terracotta-soft/40" : "border-border bg-background hover:bg-muted/50",
+                )}
+              >
+                <input
+                  type="radio"
+                  name="payment-method"
+                  value="upi"
+                  checked={paymentMethod === "upi"}
+                  onChange={() => setPaymentMethod("upi")}
+                  className="mt-1 size-4 accent-[#C86D51]"
+                />
+                <span>
+                  <span className="flex items-center gap-1.5 font-medium"><QrCode className="size-4 text-primary" /> Instant pay (UPI)</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">Scan a QR code and pay from any UPI app.</span>
+                </span>
+              </label>
+            </fieldset>
+          </section>
           {serverError && (
             <p className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive" role="alert">
               {serverError}
@@ -195,6 +276,10 @@ function CheckoutPage() {
 }
 
 function Confirmation({ order }: { order: PlacedOrder }) {
+  const isUpi = order.paymentMethod === "upi";
+  const upiId = order.upiId ?? "";
+  const payLink = isUpi && upiId ? upiUri(upiId, order.total, order.orderNumber) : "";
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
       <div className="rounded-3xl border border-border bg-card p-8 text-center shadow-lift sm:p-12">
@@ -207,6 +292,54 @@ function Confirmation({ order }: { order: PlacedOrder }) {
           Your order <span className="font-semibold text-foreground">{order.orderNumber}</span> is in. We'll start
           wrapping (or hooking) your pieces and reach out at {order.customerEmail}.
         </p>
+
+        {isUpi && upiId ? (
+          <div className="mt-8 rounded-2xl border border-border bg-linen p-6 text-left">
+            <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+              <div className="shrink-0 rounded-2xl bg-white p-3 shadow-soft">
+                <QRCodeSVG value={payLink} size={188} level="M" marginSize={0} />
+              </div>
+              <div className="min-w-0 flex-1 text-center sm:text-left">
+                <p className="flex items-center justify-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:justify-start">
+                  <IndianRupee className="size-3.5" /> Amount due
+                </p>
+                <p className="mt-1 font-serif text-4xl">{formatMoney(order.total)}</p>
+                <p className="mt-3 break-all text-sm text-muted-foreground">
+                  Pay to <span className="font-semibold text-foreground">{upiId}</span> using GPay, PhonePe, Paytm or any UPI app.
+                </p>
+                <div className="mt-4 flex flex-wrap justify-center gap-2 sm:justify-start">
+                  <Button type="button" size="sm" className="rounded-full" onClick={() => openUpiApp(payLink)}>
+                    Open UPI app
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="rounded-full"
+                    onClick={async () => {
+                      await navigator.clipboard.writeText(upiId);
+                      toast.success("UPI ID copied");
+                    }}
+                  >
+                    <Copy className="size-4" /> Copy UPI ID
+                  </Button>
+                </div>
+                <p className="mt-4 rounded-xl bg-card px-3 py-2 text-xs text-muted-foreground">
+                  Payment pending — we'll confirm your order as paid once the transfer reaches our UPI account.
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-8 rounded-2xl border border-border bg-linen p-5 text-sm">
+            <p className="flex items-center justify-center gap-2 font-medium">
+              <Banknote className="size-4 text-primary" /> Cash on delivery
+            </p>
+            <p className="mt-1 text-muted-foreground">
+              Please keep {formatMoney(order.total)} ready to pay when your order arrives.
+            </p>
+          </div>
+        )}
 
         <ul className="mt-8 space-y-3 text-left">
           {order.items.map((i) => (
@@ -229,7 +362,10 @@ function Confirmation({ order }: { order: PlacedOrder }) {
             <div className="flex justify-between text-primary"><dt>Discount ({order.couponCode})</dt><dd>−{formatMoney(order.discount)}</dd></div>
           )}
           <div className="flex justify-between"><dt className="text-muted-foreground">Shipping</dt><dd>Free</dd></div>
-          <div className="flex justify-between border-t border-border pt-2 text-lg font-semibold"><dt>Total paid</dt><dd>{formatMoney(order.total)}</dd></div>
+          <div className="flex justify-between border-t border-border pt-2 text-lg font-semibold">
+            <dt>{isUpi ? "Amount due" : "Amount due on delivery"}</dt>
+            <dd>{formatMoney(order.total)}</dd>
+          </div>
         </dl>
         {order.note && (
           <p className="mt-6 rounded-xl border border-dashed border-border p-4 text-left text-sm italic text-muted-foreground">“{order.note}”</p>

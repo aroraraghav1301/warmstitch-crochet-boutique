@@ -228,11 +228,11 @@ export function ProductDialog({
 
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-1.5">
-              <Label htmlFor="p-price">Regular price ($)</Label>
+              <Label htmlFor="p-price">Regular price (₹)</Label>
               <Input id="p-price" type="number" min="0" step="0.01" value={form.price} onChange={(e) => set("price", e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="p-sale">Sale price ($)</Label>
+              <Label htmlFor="p-sale">Sale price (₹)</Label>
               <Input id="p-sale" type="number" min="0" step="0.01" value={form.sale_price} onChange={(e) => set("sale_price", e.target.value)} placeholder="Optional" />
             </div>
             <div className="space-y-1.5">

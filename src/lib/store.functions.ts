@@ -88,6 +88,7 @@ const orderSchema = z.object({
     country: z.string().trim().min(1, "Country is required").max(100),
   }),
   note: z.string().trim().max(1000).optional().nullable(),
+  paymentMethod: z.enum(["cod", "upi"]).default("cod"),
 });
 
 export type PlaceOrderInput = z.infer<typeof orderSchema>;
@@ -115,12 +116,26 @@ export type PlacedOrder = {
   customerEmail: string;
   note: string | null;
   emailSent: boolean;
+  paymentMethod: "cod" | "upi";
+  paymentStatus: "unpaid" | "paid";
+  upiId: string | null;
 };
 
 export const placeOrder = createServerFn({ method: "POST" })
   .inputValidator((input: PlaceOrderInput) => orderSchema.parse(input))
   .handler(async ({ data }): Promise<{ ok: true; order: PlacedOrder } | { ok: false; error: string }> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    let upiId: string | null = null;
+    if (data.paymentMethod === "upi") {
+      const { data: setting } = await (supabaseAdmin as any)
+        .from("app_settings")
+        .select("value")
+        .eq("key", "upi_id")
+        .maybeSingle();
+      upiId = typeof setting?.value === "string" && setting.value.trim() ? setting.value.trim() : null;
+      if (!upiId) return { ok: false, error: "Instant pay isn't set up yet — please choose cash on delivery." };
+    }
 
     const ids = [...new Set(data.items.map((i) => i.productId))];
     const { data: rows, error } = await supabaseAdmin.from("products").select("*").in("id", ids);
@@ -173,7 +188,7 @@ export const placeOrder = createServerFn({ method: "POST" })
     const rand = crypto.getRandomValues(new Uint8Array(6));
     const orderNumber = "WS-" + Array.from(rand, (b) => alphabet[b % alphabet.length]).join("");
 
-    const { error: insertError } = await supabaseAdmin.from("orders").insert({
+    const { error: insertError } = await (supabaseAdmin as any).from("orders").insert({
       order_number: orderNumber,
       customer_name: data.customer.name,
       customer_email: data.customer.email,
@@ -189,6 +204,8 @@ export const placeOrder = createServerFn({ method: "POST" })
       discount: totals.discount,
       coupon_code: coupon?.code ?? null,
       total: totals.total,
+      payment_method: data.paymentMethod,
+      payment_status: "unpaid",
     });
     if (insertError) {
       console.error("order insert failed", insertError);
@@ -214,6 +231,9 @@ export const placeOrder = createServerFn({ method: "POST" })
       customerEmail: data.customer.email,
       note: data.note || null,
       emailSent: false,
+      paymentMethod: data.paymentMethod,
+      paymentStatus: "unpaid",
+      upiId,
     };
 
     // Store-owner notification email is wired in once the sender domain is set up.

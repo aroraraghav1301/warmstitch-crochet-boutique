@@ -246,6 +246,8 @@ export type OrderRow = {
   coupon_code: string | null;
   total: number;
   status: "pending" | "completed";
+  payment_method: "cod" | "upi";
+  payment_status: "unpaid" | "paid";
   created_at: string;
 };
 
@@ -265,4 +267,48 @@ export const adminSetOrderStatus = createServerFn({ method: "POST" })
     const { error } = await sb.from("orders").update({ status: data.status }).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true as const };
+  });
+
+export const adminSetPaymentStatus = createServerFn({ method: "POST" })
+  .inputValidator((input: { id: string; paymentStatus: "unpaid" | "paid" }) =>
+    z.object({ id: z.string().uuid(), paymentStatus: z.enum(["unpaid", "paid"]) }).parse(input),
+  )
+  .handler(async ({ data }) => {
+    const sb = await requireAdmin();
+    const { error } = await (sb as any).from("orders").update({ payment_status: data.paymentStatus }).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true as const };
+  });
+
+/* ---------------- Payment settings ---------------- */
+
+export const adminGetSettings = createServerFn({ method: "GET" }).handler(
+  async (): Promise<{ upiId: string }> => {
+    const sb = await requireAdmin();
+    const { data } = await (sb as any)
+      .from("app_settings")
+      .select("value")
+      .eq("key", "upi_id")
+      .maybeSingle();
+    return { upiId: typeof data?.value === "string" ? data.value : "" };
+  },
+);
+
+const upiIdSchema = z
+  .string()
+  .trim()
+  .max(120)
+  .refine((v) => v === "" || /^[a-zA-Z0-9.\-_]{2,}@[a-zA-Z][a-zA-Z0-9.\-]{1,}$/.test(v), {
+    message: "Enter a valid UPI ID, for example warmstitch@okhdfcbank",
+  });
+
+export const adminSaveUpiId = createServerFn({ method: "POST" })
+  .inputValidator((input: { upiId: string }) => z.object({ upiId: upiIdSchema }).parse(input))
+  .handler(async ({ data }) => {
+    const sb = await requireAdmin();
+    const { error } = await (sb as any)
+      .from("app_settings")
+      .upsert({ key: "upi_id", value: data.upiId }, { onConflict: "key" });
+    if (error) throw new Error(error.message);
+    return { ok: true as const, upiId: data.upiId };
   });

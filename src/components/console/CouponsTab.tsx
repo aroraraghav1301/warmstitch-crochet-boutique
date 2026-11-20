@@ -69,7 +69,7 @@ export function CouponsTab() {
               <SelectTrigger id="c-type"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="percent">Percentage (%)</SelectItem>
-                <SelectItem value="fixed">Fixed amount ($)</SelectItem>
+                <SelectItem value="fixed">Fixed amount (₹)</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { KeyRound, Loader2, LogOut, Package, ReceiptText, TicketPercent } from "lucide-react";
+import { KeyRound, IndianRupee, Loader2, LogOut, Package, ReceiptText, TicketPercent } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProductsTab } from "@/components/console/ProductsTab";
 import { CouponsTab } from "@/components/console/CouponsTab";
 import { OrdersTab } from "@/components/console/OrdersTab";
+import { SettingsTab } from "@/components/console/SettingsTab";
 import { getConsoleStatus, lockConsole, unlockConsole } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/console")({
@@ -114,10 +115,12 @@ function Dashboard() {
             <TabsTrigger value="orders" className="rounded-full px-4 py-2"><ReceiptText className="size-4" /> Orders</TabsTrigger>
             <TabsTrigger value="products" className="rounded-full px-4 py-2"><Package className="size-4" /> Products</TabsTrigger>
             <TabsTrigger value="coupons" className="rounded-full px-4 py-2"><TicketPercent className="size-4" /> Discounts & Coupons</TabsTrigger>
+            <TabsTrigger value="payments" className="rounded-full px-4 py-2"><IndianRupee className="size-4" /> Payments</TabsTrigger>
           </TabsList>
           <TabsContent value="orders" className="mt-6"><OrdersTab /></TabsContent>
           <TabsContent value="products" className="mt-6"><ProductsTab /></TabsContent>
           <TabsContent value="coupons" className="mt-6"><CouponsTab /></TabsContent>
+          <TabsContent value="payments" className="mt-6"><SettingsTab /></TabsContent>
         </Tabs>
       </main>
     </div>

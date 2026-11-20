@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, Clock, Loader2, MessageSquareQuote } from "lucide-react";
+import { CheckCircle2, Clock, IndianRupee, Loader2, MessageSquareQuote } from "lucide-react";
 import { useState } from "react";
-import { adminListOrders, adminSetOrderStatus, type OrderRow } from "@/lib/admin.functions";
+import { adminListOrders, adminSetOrderStatus, adminSetPaymentStatus, type OrderRow } from "@/lib/admin.functions";
 import { imageUrl } from "@/lib/catalog";
 import { formatMoney } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
@@ -81,26 +81,63 @@ function Stat({ label, value, accent }: { label: string; value: string; accent?:
 
 function OrderCard({ order, onToggle, busy }: { order: OrderRow; onToggle: () => void; busy: boolean }) {
   const done = order.status === "completed";
+  const paid = order.payment_status === "paid";
+  const setPaid = useServerFn(adminSetPaymentStatus);
+  const qc = useQueryClient();
+  const payMut = useMutation({
+    mutationFn: (paymentStatus: "unpaid" | "paid") => setPaid({ data: { id: order.id, paymentStatus } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "orders"] }),
+  });
   return (
     <article className="rounded-2xl border border-border bg-card p-5 shadow-soft">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="font-serif text-xl">{order.order_number}</p>
           <p className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleString()}</p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold">
+              {order.payment_method === "upi" ? "UPI" : "COD"}
+            </span>
+            <span
+              className={cn(
+                "rounded-full px-2.5 py-0.5 text-xs font-semibold",
+                paid ? "bg-sage-soft text-secondary-foreground" : "bg-accent text-accent-foreground",
+              )}
+            >
+              {paid ? "Paid" : order.payment_method === "upi" ? "Payment pending" : "Pay on delivery"}
+            </span>
+          </div>
         </div>
-        <button
-          type="button"
-          onClick={onToggle}
-          disabled={busy}
-          className={cn(
-            "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors",
-            done ? "bg-sage-soft text-secondary-foreground hover:bg-secondary" : "bg-accent text-accent-foreground hover:bg-terracotta-soft",
+        <div className="flex flex-wrap items-center gap-2">
+          {order.payment_method === "upi" && (
+            <button
+              type="button"
+              onClick={() => payMut.mutate(paid ? "unpaid" : "paid")}
+              disabled={payMut.isPending}
+              className={cn(
+                "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors",
+                paid ? "border-border bg-card hover:bg-muted" : "border-sage/40 bg-sage-soft text-secondary-foreground",
+              )}
+              aria-label={`Mark order ${order.order_number} as ${paid ? "payment pending" : "paid"}`}
+            >
+              {payMut.isPending ? <Loader2 className="size-4 animate-spin" /> : <IndianRupee className="size-4" />}
+              {paid ? "Paid" : "Mark paid"}
+            </button>
           )}
-          aria-label={`Mark order ${order.order_number} as ${done ? "pending" : "completed"}`}
-        >
-          {busy ? <Loader2 className="size-4 animate-spin" /> : done ? <CheckCircle2 className="size-4" /> : <Clock className="size-4" />}
-          {done ? "Completed" : "Pending"}
-        </button>
+          <button
+            type="button"
+            onClick={onToggle}
+            disabled={busy}
+            className={cn(
+              "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors",
+              done ? "bg-sage-soft text-secondary-foreground hover:bg-secondary" : "bg-accent text-accent-foreground hover:bg-terracotta-soft",
+            )}
+            aria-label={`Mark order ${order.order_number} as ${done ? "pending" : "completed"}`}
+          >
+            {busy ? <Loader2 className="size-4 animate-spin" /> : done ? <CheckCircle2 className="size-4" /> : <Clock className="size-4" />}
+            {done ? "Completed" : "Pending"}
+          </button>
+        </div>
       </div>
       <div className="mt-4 grid gap-5 md:grid-cols-[1fr_1.4fr]">
         <div className="space-y-1 text-sm">
