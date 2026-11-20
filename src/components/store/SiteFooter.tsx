@@ -1,8 +1,23 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useRef } from "react";
 import { CATEGORIES } from "@/lib/catalog";
 import { Logo } from "./SiteHeader";
 
 export function SiteFooter() {
+  const navigate = useNavigate();
+  const taps = useRef(0);
+  const lastTap = useRef(0);
+
+  function onCopyrightTap() {
+    const now = Date.now();
+    taps.current = now - lastTap.current < 700 ? taps.current + 1 : 1;
+    lastTap.current = now;
+    if (taps.current >= 5) {
+      taps.current = 0;
+      navigate({ to: "/console" });
+    }
+  }
+
   return (
     <footer className="mt-24 border-t border-border bg-linen">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr] lg:px-8">
@@ -33,7 +48,10 @@ export function SiteFooter() {
           </ul>
         </div>
       </div>
-      <div className="border-t border-border py-5 text-center text-xs text-muted-foreground">
+      <div
+        className="border-t border-border py-5 text-center text-xs text-muted-foreground"
+        onClick={onCopyrightTap}
+      >
         © {new Date().getFullYear()} WarmStitch · Handmade with warmth
       </div>
     </footer>
