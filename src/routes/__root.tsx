@@ -92,6 +92,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Cozy handmade crochet blankets, amigurumi, totes and wearables." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "theme-color", content: "#C66C50" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -107,6 +108,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/favicon.ico", sizes: "any", type: "image/x-icon" },
       { rel: "icon", href: "/favicon-32.png", sizes: "32x32", type: "image/png" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
     ],
   }),
   shellComponent: RootShell,
@@ -131,6 +133,15 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+    const register = () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    };
+    if (document.readyState === "complete") register();
+    else window.addEventListener("load", register, { once: true });
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
