@@ -134,6 +134,11 @@
 }
 
 @layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
   * {
     border-color: var(--color-border);
   }
@@ -148,6 +153,14 @@
   h1, h2, h3, h4 {
     font-family: var(--font-serif);
     letter-spacing: -0.01em;
+  }
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
 

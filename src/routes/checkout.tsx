@@ -157,15 +157,15 @@ function CheckoutPage() {
       <h1 className="font-serif text-4xl sm:text-5xl">Checkout</h1>
       <div className="mt-8 grid gap-10 lg:grid-cols-[1.3fr_1fr]">
         <form onSubmit={onSubmit} className="space-y-8" noValidate>
-          <section className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-soft">
-            <h2 className="font-serif text-2xl">Your details</h2>
+          <section className="space-y-4 rounded-2xl border border-border bg-card p-5 shadow-soft sm:p-6">
+            <h2 className="font-serif text-xl sm:text-2xl">Your details</h2>
             <div className="grid gap-4 sm:grid-cols-2">
               {field("name", "Full name", { autoComplete: "name", maxLength: 100 })}
               {field("email", "Email", { type: "email", autoComplete: "email", maxLength: 255 })}
             </div>
           </section>
-          <section className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-soft">
-            <h2 className="font-serif text-2xl">Shipping address</h2>
+          <section className="space-y-4 rounded-2xl border border-border bg-card p-5 shadow-soft sm:p-6">
+            <h2 className="font-serif text-xl sm:text-2xl">Shipping address</h2>
             {field("line1", "Street address", { autoComplete: "address-line1", maxLength: 200 })}
             {field("line2", "Apartment, suite (optional)", { autoComplete: "address-line2", maxLength: 200 })}
             <div className="grid gap-4 sm:grid-cols-2">
@@ -175,8 +175,8 @@ function CheckoutPage() {
               {field("country", "Country", { autoComplete: "country-name", maxLength: 100 })}
             </div>
           </section>
-          <section className="space-y-3 rounded-2xl border border-border bg-card p-6 shadow-soft">
-            <h2 className="font-serif text-2xl">Order note</h2>
+          <section className="space-y-3 rounded-2xl border border-border bg-card p-5 shadow-soft sm:p-6">
+            <h2 className="font-serif text-xl sm:text-2xl">Order note</h2>
             <Label htmlFor="note" className="sr-only">Order notes or gift message</Label>
             <Textarea
               id="note"
@@ -188,8 +188,8 @@ function CheckoutPage() {
               className="bg-background"
             />
           </section>
-          <section className="space-y-3 rounded-2xl border border-border bg-card p-6 shadow-soft">
-            <h2 className="font-serif text-2xl">Payment</h2>
+          <section className="space-y-3 rounded-2xl border border-border bg-card p-5 shadow-soft sm:p-6">
+            <h2 className="font-serif text-xl sm:text-2xl">Payment</h2>
             <fieldset className="grid gap-3 sm:grid-cols-2">
               <legend className="sr-only">Choose a payment method</legend>
               <label
@@ -243,7 +243,7 @@ function CheckoutPage() {
           </Button>
         </form>
 
-        <aside className="h-fit space-y-5 rounded-2xl border border-border bg-linen p-6 lg:sticky lg:top-28">
+        <aside className="h-fit space-y-5 rounded-2xl border border-border bg-linen p-5 sm:p-6 lg:sticky lg:top-28">
           <h2 className="font-serif text-2xl">Order summary</h2>
           <ul className="space-y-4">
             {cart.lines.map((l) => (
@@ -282,12 +282,12 @@ function Confirmation({ order }: { order: PlacedOrder }) {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
-      <div className="rounded-3xl border border-border bg-card p-8 text-center shadow-lift sm:p-12">
+      <div className="rounded-3xl border border-border bg-card p-6 text-center shadow-lift sm:p-12">
         <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-sage-soft text-sage">
           <CheckCircle2 className="size-9" />
         </div>
         <p className="mt-6 text-xs font-semibold uppercase tracking-[0.2em] text-sage">Order confirmed</p>
-        <h1 className="mt-2 font-serif text-4xl">Thank you, {order.customerName.split(" ")[0]}!</h1>
+        <h1 className="mt-2 font-serif text-3xl sm:text-4xl">Thank you, {order.customerName.split(" ")[0]}!</h1>
         <p className="mt-3 text-muted-foreground">
           Your order <span className="font-semibold text-foreground">{order.orderNumber}</span> is in. We'll start
           wrapping (or hooking) your pieces and reach out at {order.customerEmail}.

@@ -84,7 +84,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     // Each content route, / included, sets its own head(). Never add og:image here.
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "WarmStitch — Handmade Crochet Goods" },
       { name: "description", content: "Cozy handmade crochet blankets, amigurumi, totes and wearables from the WarmStitch studio." },
       { name: "author", content: "WarmStitch" },
@@ -158,7 +158,7 @@ function AppFrame() {
   // The private console has its own chrome — no storefront header, footer or cart.
   if (pathname.startsWith("/console")) return <Outlet />;
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-dvh flex-col">
       <SiteHeader />
       <main className="flex-1">
         {/* Required: nested routes render here. */}

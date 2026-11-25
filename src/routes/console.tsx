@@ -54,8 +54,8 @@ function PasscodeGate() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-weave px-4">
-      <form onSubmit={onSubmit} className="w-full max-w-sm space-y-5 rounded-3xl border border-border bg-card p-8 shadow-lift">
+    <div className="flex min-h-dvh items-center justify-center bg-weave px-4 py-8">
+      <form onSubmit={onSubmit} className="w-full max-w-sm space-y-5 rounded-3xl border border-border bg-card p-6 shadow-lift sm:p-8">
         <div className="flex size-12 items-center justify-center rounded-full bg-terracotta-soft text-primary">
           <KeyRound className="size-5" />
         </div>
@@ -88,18 +88,18 @@ function Dashboard() {
   const router = useRouter();
   const lock = useServerFn(lockConsole);
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-dvh bg-background">
       <header className="border-b border-border bg-card">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
           <div>
-            <p className="font-serif text-2xl">
+            <p className="font-serif text-xl sm:text-2xl">
               Warm<span className="italic text-primary">Stitch</span> <span className="text-muted-foreground">studio</span>
             </p>
           </div>
           <Button
             variant="outline"
             size="sm"
-            className="rounded-full"
+            className="shrink-0 rounded-full"
             onClick={async () => {
               await lock();
               await router.invalidate();
@@ -109,18 +109,18 @@ function Dashboard() {
           </Button>
         </div>
       </header>
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-7xl px-4 py-6 pb-16 sm:px-6 sm:py-8 lg:px-8">
         <Tabs defaultValue="orders">
-          <TabsList className="h-auto rounded-full bg-muted p-1">
-            <TabsTrigger value="orders" className="rounded-full px-4 py-2"><ReceiptText className="size-4" /> Orders</TabsTrigger>
-            <TabsTrigger value="products" className="rounded-full px-4 py-2"><Package className="size-4" /> Products</TabsTrigger>
-            <TabsTrigger value="coupons" className="rounded-full px-4 py-2"><TicketPercent className="size-4" /> Discounts & Coupons</TabsTrigger>
-            <TabsTrigger value="payments" className="rounded-full px-4 py-2"><IndianRupee className="size-4" /> Payments</TabsTrigger>
+          <TabsList className="grid h-auto w-full grid-cols-2 gap-1 rounded-2xl bg-muted p-1.5 text-sm sm:inline-flex sm:w-auto sm:grid-cols-none sm:rounded-full sm:p-1">
+            <TabsTrigger value="orders" className="justify-start gap-2 rounded-xl px-3 py-2.5 sm:justify-center sm:rounded-full sm:px-4 sm:py-2"><ReceiptText className="size-4 shrink-0" /> Orders</TabsTrigger>
+            <TabsTrigger value="products" className="justify-start gap-2 rounded-xl px-3 py-2.5 sm:justify-center sm:rounded-full sm:px-4 sm:py-2"><Package className="size-4 shrink-0" /> Products</TabsTrigger>
+            <TabsTrigger value="coupons" className="justify-start gap-2 rounded-xl px-3 py-2.5 sm:justify-center sm:rounded-full sm:px-4 sm:py-2"><TicketPercent className="size-4 shrink-0" /> Coupons</TabsTrigger>
+            <TabsTrigger value="payments" className="justify-start gap-2 rounded-xl px-3 py-2.5 sm:justify-center sm:rounded-full sm:px-4 sm:py-2"><IndianRupee className="size-4 shrink-0" /> Payments</TabsTrigger>
           </TabsList>
-          <TabsContent value="orders" className="mt-6"><OrdersTab /></TabsContent>
-          <TabsContent value="products" className="mt-6"><ProductsTab /></TabsContent>
-          <TabsContent value="coupons" className="mt-6"><CouponsTab /></TabsContent>
-          <TabsContent value="payments" className="mt-6"><SettingsTab /></TabsContent>
+          <TabsContent value="orders" className="mt-5 sm:mt-6"><OrdersTab /></TabsContent>
+          <TabsContent value="products" className="mt-5 sm:mt-6"><ProductsTab /></TabsContent>
+          <TabsContent value="coupons" className="mt-5 sm:mt-6"><CouponsTab /></TabsContent>
+          <TabsContent value="payments" className="mt-5 sm:mt-6"><SettingsTab /></TabsContent>
         </Tabs>
       </main>
     </div>

@@ -80,7 +80,7 @@ export function CartDrawer() {
   return (
     <Sheet open={cart.open} onOpenChange={cart.setOpen}>
       <SheetContent side="right" className="flex w-full flex-col gap-0 bg-background p-0 sm:max-w-md">
-        <SheetHeader className="border-b border-border px-6 py-5 text-left">
+        <SheetHeader className="border-b border-border px-5 py-5 text-left sm:px-6">
           <SheetTitle className="font-serif text-2xl">Your bag</SheetTitle>
           <SheetDescription>
             {empty ? "Nothing here yet." : `${cart.count} handmade item${cart.count === 1 ? "" : "s"}`}
@@ -101,11 +101,11 @@ export function CartDrawer() {
           </div>
         ) : (
           <>
-            <div className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
+            <div className="flex-1 space-y-4 overflow-y-auto px-4 py-5 sm:px-6">
               <ul className="space-y-4">
                 {cart.lines.map((l) => (
-                  <li key={l.key} className="flex gap-4 rounded-xl border border-border bg-card p-3">
-                    <img src={imageUrl(l.image, 200)} alt="" className="size-20 shrink-0 rounded-lg object-cover" />
+                  <li key={l.key} className="flex gap-3 rounded-xl border border-border bg-card p-3 sm:gap-4">
+                    <img src={imageUrl(l.image, 200)} alt="" className="size-16 shrink-0 rounded-lg object-cover sm:size-20" />
                     <div className="flex min-w-0 flex-1 flex-col">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
@@ -146,7 +146,7 @@ export function CartDrawer() {
               </div>
             </div>
 
-            <div className="space-y-3 border-t border-border bg-linen px-6 py-5">
+            <div className="space-y-3 border-t border-border bg-linen px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-6 sm:pt-5 sm:pb-5">
               <dl className="space-y-1.5 text-sm">
                 <div className="flex justify-between"><dt className="text-muted-foreground">Subtotal</dt><dd>{formatMoney(cart.totals.subtotal)}</dd></div>
                 {cart.totals.discount > 0 && (

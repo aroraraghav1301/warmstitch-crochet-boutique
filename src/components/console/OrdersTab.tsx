@@ -31,7 +31,7 @@ export function OrdersTab() {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <Stat label="Total orders" value={String(data.length)} />
         <Stat label="Pending" value={String(pending)} accent />
         <Stat label="Revenue" value={formatMoney(revenue)} />
@@ -72,9 +72,9 @@ export function OrdersTab() {
 
 function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
-    <div className={cn("rounded-2xl border border-border p-5", accent ? "bg-terracotta-soft" : "bg-card")}>
-      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
-      <p className="mt-1 font-serif text-3xl">{value}</p>
+    <div className={cn("rounded-2xl border border-border p-3 sm:p-5", accent ? "bg-terracotta-soft" : "bg-card")}>
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-xs">{label}</p>
+      <p className="mt-1 truncate font-serif text-xl sm:text-3xl">{value}</p>
     </div>
   );
 }
@@ -89,7 +89,7 @@ function OrderCard({ order, onToggle, busy }: { order: OrderRow; onToggle: () =>
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "orders"] }),
   });
   return (
-    <article className="rounded-2xl border border-border bg-card p-5 shadow-soft">
+    <article className="rounded-2xl border border-border bg-card p-4 shadow-soft sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="font-serif text-xl">{order.order_number}</p>
@@ -108,14 +108,14 @@ function OrderCard({ order, onToggle, busy }: { order: OrderRow; onToggle: () =>
             </span>
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 max-sm:w-full">
           {order.payment_method === "upi" && (
             <button
               type="button"
               onClick={() => payMut.mutate(paid ? "unpaid" : "paid")}
               disabled={payMut.isPending}
               className={cn(
-                "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors",
+                "inline-flex items-center justify-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors max-sm:flex-1",
                 paid ? "border-border bg-card hover:bg-muted" : "border-sage/40 bg-sage-soft text-secondary-foreground",
               )}
               aria-label={`Mark order ${order.order_number} as ${paid ? "payment pending" : "paid"}`}
@@ -129,7 +129,7 @@ function OrderCard({ order, onToggle, busy }: { order: OrderRow; onToggle: () =>
             onClick={onToggle}
             disabled={busy}
             className={cn(
-              "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors",
+              "inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors max-sm:flex-1",
               done ? "bg-sage-soft text-secondary-foreground hover:bg-secondary" : "bg-accent text-accent-foreground hover:bg-terracotta-soft",
             )}
             aria-label={`Mark order ${order.order_number} as ${done ? "pending" : "completed"}`}

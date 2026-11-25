@@ -13,7 +13,7 @@ export function Logo({ className }: { className?: string }) {
         <path d="M6 13c5 3 15 3 20 0M5 19c6 3.5 16 3.5 22 0M12 4c-3 7-3 17 0 24M20 4c3 7 3 17 0 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" opacity=".75" />
         <path d="M26 24c2 1.5 3 3 3 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       </svg>
-      <span className="font-serif text-2xl font-semibold tracking-tight text-foreground">
+      <span className="font-serif text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
         Warm<span className="italic text-primary">Stitch</span>
       </span>
     </Link>
@@ -45,8 +45,8 @@ export function SiteHeader() {
   const navItems = [{ value: "all", label: "All" }, ...CATEGORIES];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75">
-      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6 lg:px-8">
+    <header className="border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75 md:sticky md:top-0 md:z-40">
+      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
         <Logo />
         <nav className="ml-6 hidden items-center gap-1 lg:flex" aria-label="Categories">
           {navItems.map((c) => (
@@ -104,11 +104,11 @@ export function SiteHeader() {
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search the shop"
               maxLength={80}
-              className="h-10 w-full rounded-full border border-input bg-card pl-9 pr-4 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+              className="h-11 w-full rounded-full border border-input bg-card pl-9 pr-4 text-base outline-none focus-visible:ring-2 focus-visible:ring-ring/40 sm:h-10 sm:text-sm"
             />
           </div>
         </form>
-        <nav className="-mx-1 flex gap-1 overflow-x-auto" aria-label="Categories">
+        <nav className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto px-4" aria-label="Categories">
           {navItems.map((c) => (
             <Link
               key={c.value}
@@ -116,7 +116,7 @@ export function SiteHeader() {
               search={c.value === "all" ? {} : { category: c.value as Category }}
               hash="collection"
               className={cn(
-                "shrink-0 rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground",
+                "shrink-0 rounded-full px-3.5 py-2 text-sm font-medium text-muted-foreground",
                 activeCat === c.value && "bg-terracotta-soft text-accent-foreground",
               )}
             >

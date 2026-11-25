@@ -166,9 +166,9 @@ export function ProductDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="max-h-[92dvh] overflow-y-auto p-4 sm:max-w-2xl sm:p-6">
         <DialogHeader>
-          <DialogTitle className="font-serif text-2xl">{product ? "Edit product" : "Add product"}</DialogTitle>
+          <DialogTitle className="font-serif text-xl sm:text-2xl">{product ? "Edit product" : "Add product"}</DialogTitle>
           <DialogDescription>Shoppers see changes as soon as you save.</DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-5">
@@ -209,7 +209,7 @@ export function ProductDialog({
                 <div key={src + i} className="group relative size-20 overflow-hidden rounded-lg border border-border">
                   <img src={imageUrl(src, 160)} alt="" className="size-full object-cover" />
                   {i === 0 && <span className="absolute bottom-0 left-0 right-0 bg-foreground/70 text-center text-[10px] text-background">Cover</span>}
-                  <button type="button" aria-label="Remove image" onClick={() => set("images", form.images.filter((_, j) => j !== i))} className="absolute right-1 top-1 rounded-full bg-card/90 p-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100">
+                  <button type="button" aria-label="Remove image" onClick={() => set("images", form.images.filter((_, j) => j !== i))} className="absolute right-1 top-1 rounded-full bg-card/95 p-1 opacity-100 shadow-soft transition-opacity sm:bg-card/90 sm:p-0.5 sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100">
                     <X className="size-3.5" />
                   </button>
                 </div>

@@ -80,7 +80,7 @@ function ProductDetail({ data }: { data: { product: Product | null; related: Pro
       <div className="mt-6 grid gap-10 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
         {/* Gallery */}
         <div className="flex flex-col-reverse gap-4 sm:flex-row">
-          <div className="flex gap-3 sm:flex-col" role="tablist" aria-label="Product photos">
+          <div className="scrollbar-none flex gap-3 overflow-x-auto pb-1 sm:flex-col sm:overflow-visible sm:pb-0" role="tablist" aria-label="Product photos">
             {images.map((src, i) => (
               <button
                 key={src + i}
@@ -90,7 +90,7 @@ function ProductDetail({ data }: { data: { product: Product | null; related: Pro
                 aria-label={`Photo ${i + 1}`}
                 onClick={() => setActive(i)}
                 className={cn(
-                  "size-20 overflow-hidden rounded-xl border-2 bg-linen transition-all",
+                  "size-20 shrink-0 overflow-hidden rounded-xl border-2 bg-linen transition-all",
                   i === active ? "border-primary" : "border-transparent opacity-70 hover:opacity-100",
                 )}
               >
@@ -116,7 +116,7 @@ function ProductDetail({ data }: { data: { product: Product | null; related: Pro
         <div className="space-y-7">
           <div className="space-y-3">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sage">{categoryLabel(product.category)}</p>
-            <h1 className="font-serif text-4xl leading-tight sm:text-5xl">{product.name}</h1>
+            <h1 className="font-serif text-3xl leading-tight sm:text-5xl">{product.name}</h1>
             <div className="flex flex-wrap items-center gap-3">
               <PriceTag price={product.price} salePrice={product.sale_price} size="lg" />
               <StockBadge status={status} />
@@ -190,9 +190,9 @@ function ProductDetail({ data }: { data: { product: Product | null; related: Pro
       </div>
 
       {data.related.length > 0 && (
-        <section className="mt-24">
-          <h2 className="font-serif text-3xl">You might also love</h2>
-          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="mt-14 sm:mt-24">
+          <h2 className="font-serif text-2xl sm:text-3xl">You might also love</h2>
+          <div className="mt-6 grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
             {data.related.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}

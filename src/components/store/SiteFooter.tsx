@@ -19,8 +19,8 @@ export function SiteFooter() {
   }
 
   return (
-    <footer className="mt-24 border-t border-border bg-linen">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr] lg:px-8">
+    <footer className="mt-16 border-t border-border bg-linen sm:mt-24">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 sm:py-14 md:grid-cols-[1.4fr_1fr_1fr] lg:px-8">
         <div className="space-y-4">
           <Logo />
           <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">

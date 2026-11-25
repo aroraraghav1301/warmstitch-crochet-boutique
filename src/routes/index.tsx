@@ -61,15 +61,15 @@ function HomePage() {
 function Hero() {
   return (
     <section className="relative overflow-hidden bg-weave">
-      <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 sm:px-6 md:py-20 lg:grid-cols-[1.05fr_1fr] lg:px-8">
-        <div className="space-y-7">
+      <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-10 sm:gap-10 sm:px-6 sm:py-14 md:py-20 lg:grid-cols-[1.05fr_1fr] lg:px-8">
+        <div className="space-y-6 sm:space-y-7">
           <p className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-sage">
             <span className="size-1.5 rounded-full bg-primary" /> Small-batch · Hand-hooked
           </p>
-          <h1 className="font-serif text-5xl leading-[1.04] text-foreground sm:text-6xl lg:text-7xl">
+          <h1 className="font-serif text-4xl leading-[1.06] text-foreground sm:text-6xl sm:leading-[1.04] lg:text-7xl">
             Handmade with warmth, <em className="font-normal italic text-primary">one stitch</em> at a time.
           </h1>
-          <p className="max-w-lg text-lg leading-relaxed text-muted-foreground">
+          <p className="max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
             Every blanket, bear and tote is crocheted by hand in our little studio — with soft natural fibers,
             patient hours, and the kind of care you can feel the moment you hold it.
           </p>
@@ -107,10 +107,10 @@ function Promise() {
     { icon: Sparkles, title: "Gift-ready", text: "Wrapped in tissue with your handwritten note, shipped free." },
   ];
   return (
-    <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-      <div className="grid gap-6 sm:grid-cols-3">
+    <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+      <div className="grid gap-4 sm:grid-cols-3 sm:gap-6">
         {items.map(({ icon: Icon, title, text }) => (
-          <div key={title} className="flex gap-4 rounded-2xl bg-linen p-6">
+          <div key={title} className="flex gap-4 rounded-2xl bg-linen p-5 sm:p-6">
             <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-card text-primary shadow-soft">
               <Icon className="size-5" />
             </div>
@@ -163,7 +163,7 @@ function Collection() {
             {search.category ? categoryLabel(search.category) : "Everything handmade"}
           </h2>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <label htmlFor="sort" className="text-sm text-muted-foreground">Sort by</label>
           <Select value={sort} onValueChange={(v) => navigate({ search: (prev) => ({ ...prev, sort: v as Sort }), resetScroll: false })}>
             <SelectTrigger id="sort" className="w-48 rounded-full bg-card">
@@ -216,7 +216,7 @@ function Collection() {
           <p className="mt-2 text-sm text-muted-foreground">Try another category or search term.</p>
         </div>
       ) : (
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
           {visible.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}

@@ -35,13 +35,13 @@ export function SettingsTab() {
 
   return (
     <div className="max-w-2xl space-y-6">
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+      <div className="rounded-2xl border border-border bg-card p-5 shadow-soft sm:p-6">
         <div className="flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-full bg-terracotta-soft text-primary">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-terracotta-soft text-primary">
             <IndianRupee className="size-5" />
           </div>
           <div>
-            <h2 className="font-serif text-2xl">Instant pay settings</h2>
+            <h2 className="font-serif text-xl sm:text-2xl">Instant pay settings</h2>
             <p className="text-sm text-muted-foreground">Where customers' UPI payments land.</p>
           </div>
         </div>

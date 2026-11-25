@@ -53,13 +53,13 @@ export function ProductsTab() {
   });
 
   return (
-    <div className="rounded-2xl border border-border bg-card shadow-soft">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-6 py-4">
+    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-4 sm:px-6">
         <div>
-          <h2 className="font-serif text-2xl">Products</h2>
+          <h2 className="font-serif text-xl sm:text-2xl">Products</h2>
           <p className="text-sm text-muted-foreground">{data ? `${data.length} items in the shop` : "\u00a0"}</p>
         </div>
-        <Button className="rounded-full" onClick={() => { setEditing(null); setDialogOpen(true); }}>
+        <Button className="shrink-0 rounded-full" onClick={() => { setEditing(null); setDialogOpen(true); }}>
           <Plus className="size-4" /> Add Product
         </Button>
       </div>
@@ -68,51 +68,95 @@ export function ProductsTab() {
       ) : isError ? (
         <p className="p-6 text-destructive">Couldn't load products.</p>
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="pl-6">Product</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Stock</TableHead>
-              <TableHead>Price</TableHead>
-              <TableHead>Sold out</TableHead>
-              <TableHead className="pr-6 text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+        <>
+          {/* Phones: stacked cards instead of a sideways-scrolling table */}
+          <ul className="divide-y divide-border md:hidden">
             {data?.map((p) => (
-              <TableRow key={p.id}>
-                <TableCell className="pl-6">
-                  <div className="flex items-center gap-3">
-                    <img src={imageUrl(p.images[0], 120)} alt="" className="size-12 rounded-lg object-cover" />
-                    <div>
-                      <p className="font-medium">{p.name}</p>
-                      <p className="text-xs text-muted-foreground">{categoryLabel(p.category)}</p>
+              <li key={p.id} className="space-y-3 p-4">
+                <div className="flex items-start gap-3">
+                  <img src={imageUrl(p.images[0], 120)} alt="" className="size-14 shrink-0 rounded-lg object-cover" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium leading-snug">{p.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {categoryLabel(p.category)} · {p.made_to_order ? "Made to order" : `${p.stock} in stock`}
+                    </p>
+                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                      <StockBadge status={stockStatus(p)} />
+                      <PriceTag price={Number(p.price)} salePrice={p.sale_price != null ? Number(p.sale_price) : null} />
                     </div>
                   </div>
-                </TableCell>
-                <TableCell><StockBadge status={stockStatus(p)} /></TableCell>
-                <TableCell className="tabular-nums">{p.made_to_order ? "—" : p.stock}</TableCell>
-                <TableCell><PriceTag price={Number(p.price)} salePrice={p.sale_price != null ? Number(p.sale_price) : null} /></TableCell>
-                <TableCell>
-                  <Switch
-                    checked={p.sold_out}
-                    onCheckedChange={(v) => soldOutMut.mutate({ id: p.id, soldOut: v })}
-                    aria-label={`Mark ${p.name} as sold out`}
-                  />
-                </TableCell>
-                <TableCell className="pr-6 text-right">
-                  <Button variant="ghost" size="icon" aria-label={`Edit ${p.name}`} onClick={() => { setEditing(p); setDialogOpen(true); }}>
-                    <Pencil className="size-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" aria-label={`Delete ${p.name}`} onClick={() => setToDelete(p)}>
-                    <Trash2 className="size-4 text-destructive" />
-                  </Button>
-                </TableCell>
-              </TableRow>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Switch
+                      checked={p.sold_out}
+                      onCheckedChange={(v) => soldOutMut.mutate({ id: p.id, soldOut: v })}
+                      aria-label={`Mark ${p.name} as sold out`}
+                    />
+                    Sold out
+                  </label>
+                  <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="icon" aria-label={`Edit ${p.name}`} onClick={() => { setEditing(p); setDialogOpen(true); }}>
+                      <Pencil className="size-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" aria-label={`Delete ${p.name}`} onClick={() => setToDelete(p)}>
+                      <Trash2 className="size-4 text-destructive" />
+                    </Button>
+                  </div>
+                </div>
+              </li>
             ))}
-          </TableBody>
-        </Table>
+          </ul>
+
+          {/* Tablets and up: full table */}
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="pl-6">Product</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Stock</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Sold out</TableHead>
+                  <TableHead className="pr-6 text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data?.map((p) => (
+                  <TableRow key={p.id}>
+                    <TableCell className="pl-6">
+                      <div className="flex items-center gap-3">
+                        <img src={imageUrl(p.images[0], 120)} alt="" className="size-12 rounded-lg object-cover" />
+                        <div>
+                          <p className="font-medium">{p.name}</p>
+                          <p className="text-xs text-muted-foreground">{categoryLabel(p.category)}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell><StockBadge status={stockStatus(p)} /></TableCell>
+                    <TableCell className="tabular-nums">{p.made_to_order ? "—" : p.stock}</TableCell>
+                    <TableCell><PriceTag price={Number(p.price)} salePrice={p.sale_price != null ? Number(p.sale_price) : null} /></TableCell>
+                    <TableCell>
+                      <Switch
+                        checked={p.sold_out}
+                        onCheckedChange={(v) => soldOutMut.mutate({ id: p.id, soldOut: v })}
+                        aria-label={`Mark ${p.name} as sold out`}
+                      />
+                    </TableCell>
+                    <TableCell className="pr-6 text-right">
+                      <Button variant="ghost" size="icon" aria-label={`Edit ${p.name}`} onClick={() => { setEditing(p); setDialogOpen(true); }}>
+                        <Pencil className="size-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" aria-label={`Delete ${p.name}`} onClick={() => setToDelete(p)}>
+                        <Trash2 className="size-4 text-destructive" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </>
       )}
 
       <ProductDialog open={dialogOpen} onOpenChange={setDialogOpen} product={editing} onSaved={refresh} />

@@ -56,13 +56,13 @@ export function CouponsTab() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_1.6fr]">
-      <form onSubmit={onSubmit} className="h-fit space-y-4 rounded-2xl border border-border bg-card p-6 shadow-soft">
-        <h2 className="font-serif text-2xl">New promo code</h2>
+      <form onSubmit={onSubmit} className="h-fit space-y-4 rounded-2xl border border-border bg-card p-5 shadow-soft sm:p-6">
+        <h2 className="font-serif text-xl sm:text-2xl">New promo code</h2>
         <div className="space-y-1.5">
           <Label htmlFor="c-code">Code name</Label>
           <Input id="c-code" value={code} onChange={(e) => setCode(e.target.value.toUpperCase().replace(/\s/g, ""))} placeholder="COZYWINTER" maxLength={40} />
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="c-type">Discount type</Label>
             <Select value={type} onValueChange={(v) => setType(v as "percent" | "fixed")}>
@@ -87,32 +87,29 @@ export function CouponsTab() {
         </Button>
       </form>
 
-      <div className="rounded-2xl border border-border bg-card shadow-soft">
-        <div className="border-b border-border px-6 py-4">
-          <h2 className="font-serif text-2xl">Coupons</h2>
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
+        <div className="border-b border-border px-4 py-4 sm:px-6">
+          <h2 className="font-serif text-xl sm:text-2xl">Coupons</h2>
           <p className="text-sm text-muted-foreground">{data ? `${data.filter((c) => c.active).length} active of ${data.length}` : "\u00a0"}</p>
         </div>
         {isLoading ? (
           <Loader2 className="mx-auto my-10 size-6 animate-spin text-muted-foreground" />
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="pl-6">Code</TableHead>
-                <TableHead>Discount</TableHead>
-                <TableHead>Active</TableHead>
-                <TableHead className="pr-6 text-right">Delete</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          <>
+            <ul className="divide-y divide-border md:hidden">
               {data?.map((c) => (
-                <TableRow key={c.id}>
-                  <TableCell className="pl-6 font-mono font-semibold">{c.code}</TableCell>
-                  <TableCell>{c.discount_type === "percent" ? `${Number(c.value)}% off` : `${formatMoney(Number(c.value))} off`}</TableCell>
-                  <TableCell>
-                    <Switch checked={c.active} onCheckedChange={(v) => toggleMut.mutate({ id: c.id, active: v })} aria-label={`Toggle ${c.code}`} />
-                  </TableCell>
-                  <TableCell className="pr-6 text-right">
+                <li key={c.id} className="flex items-center justify-between gap-3 p-4">
+                  <div className="min-w-0">
+                    <p className="font-mono font-semibold">{c.code}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {c.discount_type === "percent" ? `${Number(c.value)}% off` : `${formatMoney(Number(c.value))} off`}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Switch checked={c.active} onCheckedChange={(v) => toggleMut.mutate({ id: c.id, active: v })} aria-label={`Toggle ${c.code}`} />
+                      Active
+                    </label>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -123,11 +120,46 @@ export function CouponsTab() {
                     >
                       <Trash2 className="size-4 text-destructive" />
                     </Button>
-                  </TableCell>
-                </TableRow>
+                  </div>
+                </li>
               ))}
-            </TableBody>
-          </Table>
+            </ul>
+            <div className="hidden md:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="pl-6">Code</TableHead>
+                    <TableHead>Discount</TableHead>
+                    <TableHead>Active</TableHead>
+                    <TableHead className="pr-6 text-right">Delete</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data?.map((c) => (
+                    <TableRow key={c.id}>
+                      <TableCell className="pl-6 font-mono font-semibold">{c.code}</TableCell>
+                      <TableCell>{c.discount_type === "percent" ? `${Number(c.value)}% off` : `${formatMoney(Number(c.value))} off`}</TableCell>
+                      <TableCell>
+                        <Switch checked={c.active} onCheckedChange={(v) => toggleMut.mutate({ id: c.id, active: v })} aria-label={`Toggle ${c.code}`} />
+                      </TableCell>
+                      <TableCell className="pr-6 text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label={`Delete ${c.code}`}
+                          onClick={() => {
+                            if (window.confirm(`Delete coupon ${c.code}?`)) deleteMut.mutate(c.id);
+                          }}
+                        >
+                          <Trash2 className="size-4 text-destructive" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         )}
       </div>
     </div>
